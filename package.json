@@ -1,0 +1,17 @@
+{
+  "name": "api_study",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "https://github.com/dbstjrwnekd/api_study.git",
+  "author": "dbstjrwnekd <sh4869@ajou.ac.kr>",
+  "license": "MIT",
+  "private": true,
+  "workspaces": [
+    "client",
+    "server"
+  ],
+  "scripts": {
+    "client": "yarn workspace client start",
+    "server": "yarn workspace server start"
+  }
+}
