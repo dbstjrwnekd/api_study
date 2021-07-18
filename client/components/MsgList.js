@@ -16,7 +16,7 @@ const originalMsgs = Array(50)
 
 const MsgList = () => {
   const [msgs, setMsgs] = useState(originalMsgs);
-  const onCreate = (text) => {
+  const onCreateMessage = (text) => {
     const newMsg = {
       id: msgs.length,
       userId: getRandomUserId(),
@@ -28,10 +28,10 @@ const MsgList = () => {
 
   return (
     <>
-      <MsgInput mutate={onCreate} />
+      <MsgInput mutate={onCreateMessage} />
       <ul className="messages">
-        {msgs.map((x) => (
-          <MsgItem key={x.id} {...x} />
+        {msgs.map((msg) => (
+          <MsgItem key={msg.id} {...msg} />
         ))}
       </ul>
     </>
