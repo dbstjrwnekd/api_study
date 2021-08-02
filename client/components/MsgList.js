@@ -5,11 +5,11 @@ import fetcher from "../fetcher.js";
 import { useRouter } from "next/router";
 import useInfiniteScroll from "../hooks/useInfiniteScroll";
 
-const MsgList = () => {
+const MsgList = ({ smsgs }) => {
   const {
     query: { userId = "" },
   } = useRouter();
-  const [msgs, setMsgs] = useState([]);
+  const [msgs, setMsgs] = useState(smsgs);
   const [editingId, setEditingId] = useState(null);
   const [hasNext, setHasNext] = useState(true);
   const fetchMoreEl = useRef(null);
