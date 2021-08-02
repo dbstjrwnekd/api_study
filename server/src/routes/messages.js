@@ -39,7 +39,7 @@ const messagesRoutes = [
         id: v4(),
         text: body.text,
         userId: body.userId,
-        timestamp: Date.now(),
+        timeStamp: Date.now(),
       };
       msgs.unshift(newMsg);
       setMsgs(msgs);
@@ -50,7 +50,7 @@ const messagesRoutes = [
     // UPDATE MESSAGES
     method: "put",
     route: "/messages/:id",
-    handler: ({ body, parmas: { id } }, res) => {
+    handler: ({ body, params: { id } }, res) => {
       try {
         const msgs = getMsgs();
         const targetIndex = msgs.findIndex((msg) => msg.id == id);
@@ -71,18 +71,18 @@ const messagesRoutes = [
     // DELETE MESSAGES
     method: "delete",
     route: "/messages/:id",
-    handler: ({ body, params: { id } }, res) => {
+    handler: ({ query: { userId }, params: { id } }, res) => {
       try {
         const msgs = getMsgs();
         const targetIndex = msgs.findIndex((msg) => msg.id == id);
         if (targetIndex < 0) throw "메시지가 없습니다.";
-        if (msgs[targetIndex].userId !== body.userId)
-          throw "사용자가 다릅니다.";
+        if (msgs[targetIndex].userId !== userId) throw "사용자가 다릅니다.";
 
         msgs.splice(targetIndex, 1);
         setMsgs(msgs);
         res.send(id);
       } catch (err) {
+        console.log(err);
         res.status(500).send({ error: err });
       }
     },
