@@ -1,42 +1,37 @@
 import { useState } from "react";
 import MsgItem from "./MsgItem";
 import MsgInput from "./MsgInput";
-
-const userIds = ["roy", "jay"];
-const getRandomUserId = () => userIds[Math.round(Math.random())];
-
-const originalMsgs = Array(50)
-  .fill(0)
-  .map((_, i) => ({
-    id: 50 - i,
-    userId: getRandomUserId(),
-    timeStamp: 1234567890123 + (50 - i) * 1000 * 60,
-    text: `${50 - i} mock text`,
-  }));
+import fetcher from "../fetcher.js";
+import { useRouter } from "next/router";
 
 const MsgList = () => {
-  const [msgs, setMsgs] = useState(originalMsgs);
+  const {
+    query: { userId = "" },
+  } = useRouter();
+  const [msgs, setMsgs] = useState([]);
   const [editingId, setEditingId] = useState(null);
 
-  const onCreateMessage = (text) => {
-    const newMsg = {
-      id: msgs.length + 1,
-      userId: getRandomUserId(),
-      timeStamp: Date.now(),
-      text: `${msgs.length + 1} ${text}`,
-    };
+  const initMsgs = async () => {
+    const msgs = await fetcher("get", "messages");
+    setMsgs(msgs);
+  };
+
+  useState(() => {
+    initMsgs();
+  }, []);
+
+  const onCreateMessage = async (text) => {
+    const newMsg = await fetcher("post", "messages", { text, userId });
     setMsgs((msgs) => [newMsg, ...msgs]);
   };
 
-  const onUpdateMessage = (text, id) => {
+  const onUpdateMessage = async (text, id) => {
+    const newMsg = await fetcher("put", `/messages/${id}`, { text, userId });
     setMsgs((msgs) => {
       const targetIndex = msgs.findIndex((msg) => msg.id === id);
       if (targetIndex < 0) return msgs;
       const newMsgs = [...msgs];
-      newMsgs.splice(targetIndex, 1, {
-        ...msgs[targetIndex],
-        text,
-      });
+      newMsgs.splice(targetIndex, 1, newMsg);
       return newMsgs;
     });
     doneEdit();
@@ -44,9 +39,12 @@ const MsgList = () => {
 
   const doneEdit = () => setEditingId(null);
 
-  const onDeleteMessage = (id) => {
+  const onDeleteMessage = async (id) => {
+    const removedId = await fetcher("delete", `/messages/${id}`, {
+      params: { userId },
+    });
     setMsgs((msgs) => {
-      const targetIndex = msgs.findIndex((msg) => msg.id === id);
+      const targetIndex = msgs.findIndex((msg) => msg.id === removedId + "");
       if (targetIndex < 0) return msgs;
       const newMsgs = [...msgs];
       newMsgs.splice(targetIndex, 1);
@@ -66,6 +64,7 @@ const MsgList = () => {
             onDeleteMessage={() => onDeleteMessage(msg.id)}
             startEdit={() => setEditingId(msg.id)}
             isEditing={editingId === msg.id}
+            myId={userId}
           />
         ))}
       </ul>
